@@ -486,7 +486,7 @@ function create() {
         // Carro desbloqueado
         repositionCar();
         inGallerySelection = false;
-        titleText.setText("Juego Carrito");
+        titleText.setText("Drive collector");
         toggleMenuButtons(true);
         updatePreview.call(this);
       } else if (totalCoins >= coinsNeeded) {
