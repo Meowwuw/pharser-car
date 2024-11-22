@@ -2,7 +2,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
   margin: 0;
   background-color: antiquewhite;
+  overflow: hidden; /* Evita barras de desplazamiento */
+}
+
+#gameContainer {
+  width: 100vw; 
+  height: 100vh; 
+  max-width: 1440px; 
+  max-height: 880px; 
 }
