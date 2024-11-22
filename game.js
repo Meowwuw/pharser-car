@@ -470,15 +470,15 @@ function create() {
 function update() {
   if (isPlaying) {
     const cursors = this.input.keyboard.createCursorKeys();
-    background1.y += 15; // Velocidad de desplazamiento de la pista
+    background1.y += 15; 
     background2.y += 15;
 
     if (background1.y >= config.height) {
-      background1.y = background2.y - config.height; // Si el fondo 1 sale de la pantalla, reposicionarlo abajo del fondo 2
+      background1.y = background2.y - config.height; 
     }
 
     if (background2.y >= config.height) {
-      background2.y = background1.y - config.height; // Si el fondo 2 sale de la pantalla, reposicionarlo abajo del fondo 1
+      background2.y = background1.y - config.height; 
     }
 
     //Izquierda
