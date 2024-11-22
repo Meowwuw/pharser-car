@@ -27,7 +27,7 @@ let carSprite;
 let coinGroup;
 let coinCounter = 0;
 let scoreText;
-let totalCoins = 0; 
+let totalCoins = 0;
 let background1, background2;
 let currentPistaMusic;
 let coinSound;
@@ -45,7 +45,6 @@ const pistaMusics = [
 
 const unlockedCars = [true, true, false, false, false];
 const unlockedMaps = [true, false, false, false, false];
-
 
 function preload() {
   this.load.image("mapa1", "img/mapa1.png");
@@ -65,7 +64,7 @@ function preload() {
   this.load.audio("musicPista3", "music/musica-pista3.mp3");
   this.load.audio("musicPista4", "music/musica-pista5.mp3");
   this.load.audio("musicPista5", "music/musica-pista4.mp3");
- 
+
   this.load.audio("coinSound", "music/coin.mp3");
   this.load.audio("creditsMusic", "music/credits-music.mp3");
 
@@ -83,7 +82,7 @@ function preload() {
 }
 
 function create() {
-  localStorage.clear(); 
+  localStorage.clear();
   totalCoins = 0;
   coinCounter = 0;
   background1 = this.add.image(0, 0, selectedMap).setOrigin(0, 0);
@@ -134,11 +133,11 @@ function create() {
 
   function spawnCoin() {
     if (!isPlaying) return;
-  
+
     if (coinGroup.getChildren().length >= 4) {
       return;
     }
-  
+
     const x = Phaser.Math.Between(50, config.width - 50);
     const y = -50;
     const coin = coinGroup.create(x, y, "moneda");
@@ -152,66 +151,15 @@ function create() {
     totalCoins++; // Incrementa directamente las monedas totales
     scoreText.setText(`Monedas: ${totalCoins}`); // Actualiza el texto
     coinSound.play();
-}
+  }
 
-function handleEnter() {
-    if (inMapSelection) {
-        const mapCosts = [0, 15, 20, 25, 30];
-        const coinsNeeded = mapCosts[selectedMapIndex];
-
-        if (unlockedMaps[selectedMapIndex]) {
-            // Cambiar a mapa desbloqueado
-            background1.setTexture(pistaImages[selectedMapIndex]);
-            background2.setTexture(pistaImages[selectedMapIndex]);
-            inMapSelection = false;
-            titleText.setText("Juego Carrito");
-            toggleMenuButtons(true);
-            updatePreview.call(this);
-        } else if (totalCoins >= coinsNeeded) {
-            // Desbloquear mapa y restar monedas
-            totalCoins -= coinsNeeded;
-            unlockedMaps[selectedMapIndex] = true;
-            scoreText.setText(`Monedas: ${totalCoins}`);
-            updatePreview.call(this);
-
-            // Mostrar mensaje de éxito
-            const successMessage = this.add.text(
-                720,
-                600,
-                `¡Mapa ${selectedMapIndex + 1} desbloqueado!`,
-                {
-                    fontSize: "28px",
-                    fill: "#00ff00",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
-            this.time.delayedCall(2000, () => successMessage.destroy());
-        } else {
-            // Monedas insuficientes
-            const errorMessage = this.add.text(
-                720,
-                600,
-                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
-                {
-                    fontSize: "28px",
-                    fill: "#ff0000",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
-            this.time.delayedCall(2000, () => errorMessage.destroy());
-        }
-    }
-}
-  
   function showCredits(scene) {
     const creditsBackground = scene.add.rectangle(
-      config.width / 2, 
+      config.width / 2,
       config.height / 2,
-      config.width, 
-      config.height, 
-      0x000000 
+      config.width,
+      config.height,
+      0x000000
     );
 
     const studentNames = [
@@ -224,7 +172,7 @@ function handleEnter() {
       "Renzo S.",
       "Emmanuel M.",
       "1011010",
-      "Lluncor.com"
+      "Lluncor.com",
     ];
 
     const creditsGroup = scene.add.group();
@@ -358,7 +306,7 @@ function handleEnter() {
   function updatePreview() {
     if (inMapSelection) {
       if (previewImage) previewImage.destroy();
-  
+
       if (unlockedMaps[selectedMapIndex]) {
         // Mostrar mapa desbloqueado
         previewImage = this.add
@@ -377,12 +325,12 @@ function handleEnter() {
           })
           .setOrigin(0.5);
       }
-  
+
       leftArrow.setVisible(true);
       rightArrow.setVisible(true);
     } else if (inGallerySelection) {
       if (previewImage) previewImage.destroy();
-  
+
       if (unlockedCars[selectedCarIndex]) {
         // Mostrar carro desbloqueado
         previewImage = this.add
@@ -390,7 +338,7 @@ function handleEnter() {
           .setOrigin(0.5)
           .setDisplaySize(250, 200);
       } else {
-        const coinsNeeded = (selectedCarIndex + 1) * 5; 
+        const coinsNeeded = (selectedCarIndex + 1) * 5;
         previewImage = this.add
           .text(720, 450, `BLOQUEADO`, {
             fontSize: "32px",
@@ -400,7 +348,7 @@ function handleEnter() {
           })
           .setOrigin(0.5);
       }
-  
+
       leftArrow.setVisible(true);
       rightArrow.setVisible(true);
     } else {
@@ -409,7 +357,7 @@ function handleEnter() {
       rightArrow.setVisible(false);
     }
   }
-  
+
   function repositionCar() {
     carSprite.setTexture(carImages[selectedCarIndex]);
     carSprite.setPosition(config.width / 2, config.height / 2 + 300);
@@ -417,198 +365,194 @@ function handleEnter() {
 
   this.input.keyboard.on("keydown-ENTER", () => {
     if (!inMapSelection && !inGallerySelection && !isPlaying) {
-        switch (selectedMenuIndex) {
-            case 3: 
-                toggleMenuButtons(false);
-                menuBackground.setVisible(false);
-                menuHeader.setVisible(false);
-                menuFooter.setVisible(false);
-                titleText.setVisible(false);
-                showCredits(this);
-                menuMusic.pause();
-                break;
+      switch (selectedMenuIndex) {
+        case 3:
+          toggleMenuButtons(false);
+          menuBackground.setVisible(false);
+          menuHeader.setVisible(false);
+          menuFooter.setVisible(false);
+          titleText.setVisible(false);
+          showCredits(this);
+          menuMusic.pause();
+          break;
 
-            case 2: 
-                inMapSelection = true;
-                titleText.setText("MAPAS");
-                toggleMenuButtons(false);
-                updatePreview.call(this);
-                break;
+        case 2:
+          inMapSelection = true;
+          titleText.setText("MAPAS");
+          toggleMenuButtons(false);
+          updatePreview.call(this);
+          break;
 
-            case 1: 
-                inGallerySelection = true;
-                titleText.setText("GALERIA");
-                toggleMenuButtons(false);
-                updatePreview.call(this);
-                break;
+        case 1:
+          inGallerySelection = true;
+          titleText.setText("GALERIA");
+          toggleMenuButtons(false);
+          updatePreview.call(this);
+          break;
 
-                case 0: // Jugar
-                toggleMenuButtons(false);
-                menuBackground.setVisible(false);
-                menuHeader.setVisible(false);
-                menuFooter.setVisible(false);
-                titleText.setVisible(false);
-                carSprite.setVisible(true);
-                isPlaying = true;
-            
-                // Pausa la música del menú, si está sonando
-                if (menuMusic.isPlaying) {
-                    menuMusic.pause();
-                }
-            
-                // Reanuda la música de la pista si estaba pausada
-                if (currentPistaMusic && currentPistaMusic.isPaused) {
-                    currentPistaMusic.resume();
-                } else {
-                    // Si no hay música de pista, crea una nueva instancia
-                    if (currentPistaMusic) {
-                        currentPistaMusic.stop();
-                    }
-            
-                    currentPistaMusic = this.sound.add(pistaMusics[selectedMapIndex], {
-                        loop: true,
-                    });
-                    currentPistaMusic.play();
-                }
-            
-                this.time.addEvent({
-                    delay: 3000,
-                    callback: spawnCoin,
-                    callbackScope: this,
-                    loop: true,
-                });
-                break;
-            
+          case 0: // Jugar
+          toggleMenuButtons(false);
+          menuBackground.setVisible(false);
+          menuHeader.setVisible(false);
+          menuFooter.setVisible(false);
+          titleText.setVisible(false);
+          carSprite.setVisible(true);
+          isPlaying = true;
+          if (menuMusic.isPlaying) {
+              menuMusic.pause();
+          }
+      
+          if (currentPistaMusic && currentPistaMusic.isPaused) {
+              currentPistaMusic.resume();
+          } else {
+              if (currentPistaMusic) {
+                  currentPistaMusic.stop();
+              }
+              currentPistaMusic = this.sound.add(pistaMusics[selectedMapIndex], {
+                  loop: true,
+              });
+              currentPistaMusic.play();
+          }
+      
+          this.time.addEvent({
+              delay: 3000,
+              callback: spawnCoin,
+              callbackScope: this,
+              loop: true,
+          });
+          break;
+      
 
-            default:
-                console.log("Opción no válida");
-        }
+        default:
+          console.log("Opción no válida");
+      }
     } else if (inMapSelection) {
-        const mapCosts = [0, 15, 20, 25, 30];
-        const coinsNeeded = mapCosts[selectedMapIndex];
+      const mapCosts = [0, 15, 20, 25, 30];
+      const coinsNeeded = mapCosts[selectedMapIndex];
 
-        if (unlockedMaps[selectedMapIndex]) {
-            background1.setTexture(pistaImages[selectedMapIndex]);
-            background2.setTexture(pistaImages[selectedMapIndex]);
-            inMapSelection = false;
-            titleText.setText("Juego Carrito");
-            toggleMenuButtons(true);
-            updatePreview.call(this);
-        } else if (totalCoins >= coinsNeeded) {
-            totalCoins -= coinsNeeded;
-            unlockedMaps[selectedMapIndex] = true;
-            scoreText.setText(`Monedas: ${totalCoins}`);
-            updatePreview.call(this);
-
-            const successMessage = this.add.text(
-                720,
-                600,
-                `¡Mapa ${selectedMapIndex + 1} desbloqueado!`,
-                {
-                    fontSize: "28px",
-                    fill: "#00ff00",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
-
-            this.time.delayedCall(2000, () => {
-                successMessage.destroy();
-            });
-        } else {
-            const errorMessage = this.add.text(
-                720,
-                600,
-                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
-                {
-                    fontSize: "28px",
-                    fill: "#ff0000",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
-
-            this.time.delayedCall(2000, () => {
-                errorMessage.destroy();
-            });
+      if (unlockedMaps[selectedMapIndex]) {
+        background1.setTexture(pistaImages[selectedMapIndex]);
+        background2.setTexture(pistaImages[selectedMapIndex]);
+        inMapSelection = false;
+        titleText.setText("Drive collector");
+        toggleMenuButtons(true);
+        updatePreview.call(this);
+        if (currentPistaMusic) {
+          currentPistaMusic.stop(); 
         }
+
+        currentPistaMusic = this.sound.add(pistaMusics[selectedMapIndex], {
+          loop: true,
+        });
+      } else if (totalCoins >= coinsNeeded) {
+        totalCoins -= coinsNeeded;
+        unlockedMaps[selectedMapIndex] = true;
+        scoreText.setText(`Monedas: ${totalCoins}`);
+        updatePreview.call(this);
+
+        const successMessage = this.add
+          .text(720, 600, `¡Mapa ${selectedMapIndex + 1} desbloqueado!`, {
+            fontSize: "28px",
+            fill: "#00ff00",
+            fontFamily: '"Irish Grover", system-ui',
+            align: "center",
+          })
+          .setOrigin(0.5);
+
+        this.time.delayedCall(2000, () => successMessage.destroy());
+      } else {
+        const errorMessage = this.add
+          .text(
+            720,
+            600,
+            `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
+            {
+              fontSize: "28px",
+              fill: "#ff0000",
+              fontFamily: '"Irish Grover", system-ui',
+              align: "center",
+            }
+          )
+          .setOrigin(0.5);
+
+        this.time.delayedCall(2000, () => errorMessage.destroy());
+      }
     } else if (inGallerySelection) {
-        // Selección de galería
-        const carCosts = [0, 0, 15, 20, 25];
-        const coinsNeeded = carCosts[selectedCarIndex];
+      // Selección de galería
+      const carCosts = [0, 0, 15, 20, 25];
+      const coinsNeeded = carCosts[selectedCarIndex];
 
-        if (unlockedCars[selectedCarIndex]) {
-            // Carro desbloqueado
-            repositionCar();
-            inGallerySelection = false;
-            titleText.setText("Juego Carrito");
-            toggleMenuButtons(true);
-            updatePreview.call(this);
-        } else if (totalCoins >= coinsNeeded) {
-            // Desbloquear carro
-            totalCoins -= coinsNeeded;
-            unlockedCars[selectedCarIndex] = true;
-            scoreText.setText(`Monedas: ${totalCoins}`);
-            updatePreview.call(this);
+      if (unlockedCars[selectedCarIndex]) {
+        // Carro desbloqueado
+        repositionCar();
+        inGallerySelection = false;
+        titleText.setText("Juego Carrito");
+        toggleMenuButtons(true);
+        updatePreview.call(this);
+      } else if (totalCoins >= coinsNeeded) {
+        // Desbloquear carro
+        totalCoins -= coinsNeeded;
+        unlockedCars[selectedCarIndex] = true;
+        scoreText.setText(`Monedas: ${totalCoins}`);
+        updatePreview.call(this);
 
-            // Mostrar mensaje de éxito
-            const successMessage = this.add.text(
-                720,
-                600,
-                `¡Carro ${selectedCarIndex + 1} desbloqueado!`,
-                {
-                    fontSize: "28px",
-                    fill: "#00ff00",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
+        // Mostrar mensaje de éxito
+        const successMessage = this.add
+          .text(720, 600, `¡Carro ${selectedCarIndex + 1} desbloqueado!`, {
+            fontSize: "28px",
+            fill: "#00ff00",
+            fontFamily: '"Irish Grover", system-ui',
+            align: "center",
+          })
+          .setOrigin(0.5);
 
-            this.time.delayedCall(2000, () => {
-                successMessage.destroy();
-            });
-        } else {
-            // Monedas insuficientes
-            const errorMessage = this.add.text(
-                720,
-                600,
-                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
-                {
-                    fontSize: "28px",
-                    fill: "#ff0000",
-                    fontFamily: '"Irish Grover", system-ui',
-                    align: "center",
-                }
-            ).setOrigin(0.5);
+        this.time.delayedCall(2000, () => {
+          successMessage.destroy();
+        });
+      } else {
+        // Monedas insuficientes
+        const errorMessage = this.add
+          .text(
+            720,
+            600,
+            `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
+            {
+              fontSize: "28px",
+              fill: "#ff0000",
+              fontFamily: '"Irish Grover", system-ui',
+              align: "center",
+            }
+          )
+          .setOrigin(0.5);
 
-            this.time.delayedCall(2000, () => {
-                errorMessage.destroy();
-            });
-        }
+        this.time.delayedCall(2000, () => {
+          errorMessage.destroy();
+        });
+      }
     }
 
     updateHandPosition();
-});
+  });
 
 
-this.input.keyboard.on("keydown-ESC", () => {
-  if (isPlaying) {
-      isPlaying = false;
-      menuBackground.setVisible(true);
-      menuHeader.setVisible(true);
-      menuFooter.setVisible(true);
-      titleText.setVisible(true);
-      toggleMenuButtons(true);
-      carSprite.setVisible(false);
+  this.input.keyboard.on("keydown-ESC", () => {
+    if (isPlaying) {
+        isPlaying = false;
+        menuBackground.setVisible(true);
+        menuHeader.setVisible(true);
+        menuFooter.setVisible(true);
+        titleText.setVisible(true);
+        toggleMenuButtons(true);
+        carSprite.setVisible(false);
 
-      if (currentPistaMusic && currentPistaMusic.isPlaying) {
-          currentPistaMusic.pause(); 
-      }
+        if (currentPistaMusic && currentPistaMusic.isPlaying) {
+            currentPistaMusic.pause();
+        }
 
-      if (!menuMusic.isPlaying) {
-          menuMusic.resume(); 
-      }
-  }
+        if (!menuMusic.isPlaying) {
+            menuMusic.resume();
+        }
+    }
 });
 
 
@@ -670,15 +614,15 @@ this.input.keyboard.on("keydown-ESC", () => {
 function update() {
   if (isPlaying) {
     const cursors = this.input.keyboard.createCursorKeys();
-    background1.y += 15; 
+    background1.y += 15;
     background2.y += 15;
 
     if (background1.y >= config.height) {
-      background1.y = background2.y - config.height; 
+      background1.y = background2.y - config.height;
     }
 
     if (background2.y >= config.height) {
-      background2.y = background1.y - config.height; 
+      background2.y = background1.y - config.height;
     }
 
     //Izquierda
