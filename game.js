@@ -27,6 +27,7 @@ let carSprite;
 let coinGroup;
 let coinCounter = 0;
 let scoreText;
+let totalCoins = 0; 
 let background1, background2;
 let currentPistaMusic;
 let coinSound;
@@ -41,6 +42,10 @@ const pistaMusics = [
   "musicPista4",
   "musicPista5",
 ];
+
+const unlockedCars = [true, true, false, false, false];
+const unlockedMaps = [true, false, false, false, false];
+
 
 function preload() {
   this.load.image("mapa1", "img/mapa1.png");
@@ -78,6 +83,15 @@ function preload() {
 }
 
 function create() {
+  localStorage.clear(); 
+  totalCoins = 0;
+  coinCounter = 0;
+  background1 = this.add.image(0, 0, selectedMap).setOrigin(0, 0);
+  background2 = this.add.image(0, -config.height, selectedMap).setOrigin(0, 0);
+  background1.setDisplaySize(config.width, config.height);
+  background2.setDisplaySize(config.width, config.height);
+
+  localStorage.removeItem("totalCoins");
   background1 = this.add.image(0, 0, selectedMap).setOrigin(0, 0);
   background2 = this.add.image(0, -config.height, selectedMap).setOrigin(0, 0);
   background1.setDisplaySize(config.width, config.height);
@@ -111,7 +125,6 @@ function create() {
   });
 
   this.physics.add.overlap(carSprite, coinGroup, collectCoin, null, this);
-  //Generar periodicamente monedas
   this.time.addEvent({
     delay: 1000,
     callback: spawnCoin,
@@ -121,7 +134,11 @@ function create() {
 
   function spawnCoin() {
     if (!isPlaying) return;
-
+  
+    if (coinGroup.getChildren().length >= 4) {
+      return;
+    }
+  
     const x = Phaser.Math.Between(50, config.width - 50);
     const y = -50;
     const coin = coinGroup.create(x, y, "moneda");
@@ -132,12 +149,62 @@ function create() {
 
   function collectCoin(car, coin) {
     coin.destroy();
-    coinCounter++;
-    scoreText.setText(`Monedas: ${coinCounter}`);
-
+    totalCoins++; // Incrementa directamente las monedas totales
+    scoreText.setText(`Monedas: ${totalCoins}`); // Actualiza el texto
     coinSound.play();
-  }
+}
 
+function handleEnter() {
+    if (inMapSelection) {
+        const mapCosts = [0, 15, 20, 25, 30];
+        const coinsNeeded = mapCosts[selectedMapIndex];
+
+        if (unlockedMaps[selectedMapIndex]) {
+            // Cambiar a mapa desbloqueado
+            background1.setTexture(pistaImages[selectedMapIndex]);
+            background2.setTexture(pistaImages[selectedMapIndex]);
+            inMapSelection = false;
+            titleText.setText("Juego Carrito");
+            toggleMenuButtons(true);
+            updatePreview.call(this);
+        } else if (totalCoins >= coinsNeeded) {
+            // Desbloquear mapa y restar monedas
+            totalCoins -= coinsNeeded;
+            unlockedMaps[selectedMapIndex] = true;
+            scoreText.setText(`Monedas: ${totalCoins}`);
+            updatePreview.call(this);
+
+            // Mostrar mensaje de éxito
+            const successMessage = this.add.text(
+                720,
+                600,
+                `¡Mapa ${selectedMapIndex + 1} desbloqueado!`,
+                {
+                    fontSize: "28px",
+                    fill: "#00ff00",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+            this.time.delayedCall(2000, () => successMessage.destroy());
+        } else {
+            // Monedas insuficientes
+            const errorMessage = this.add.text(
+                720,
+                600,
+                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
+                {
+                    fontSize: "28px",
+                    fill: "#ff0000",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+            this.time.delayedCall(2000, () => errorMessage.destroy());
+        }
+    }
+}
+  
   function showCredits(scene) {
     const creditsBackground = scene.add.rectangle(
       config.width / 2, 
@@ -291,18 +358,49 @@ function create() {
   function updatePreview() {
     if (inMapSelection) {
       if (previewImage) previewImage.destroy();
-      previewImage = this.add
-        .image(720, 450, mapImages[selectedMapIndex])
-        .setOrigin(0.5)
-        .setDisplaySize(250, 200);
+  
+      if (unlockedMaps[selectedMapIndex]) {
+        // Mostrar mapa desbloqueado
+        previewImage = this.add
+          .image(720, 450, mapImages[selectedMapIndex])
+          .setOrigin(0.5)
+          .setDisplaySize(250, 200);
+      } else {
+        // Mostrar mensaje de bloqueado con las monedas necesarias
+        const coinsNeeded = (selectedMapIndex + 1) * 5; // Ejemplo: 15, 20, 25...
+        previewImage = this.add
+          .text(720, 450, `BLOQUEADO`, {
+            fontSize: "32px",
+            fill: "#ff0000",
+            fontFamily: '"Irish Grover", system-ui',
+            align: "center",
+          })
+          .setOrigin(0.5);
+      }
+  
       leftArrow.setVisible(true);
       rightArrow.setVisible(true);
     } else if (inGallerySelection) {
       if (previewImage) previewImage.destroy();
-      previewImage = this.add
-        .image(720, 450, carImages[selectedCarIndex])
-        .setOrigin(0.5)
-        .setDisplaySize(250, 200);
+  
+      if (unlockedCars[selectedCarIndex]) {
+        // Mostrar carro desbloqueado
+        previewImage = this.add
+          .image(720, 450, carImages[selectedCarIndex])
+          .setOrigin(0.5)
+          .setDisplaySize(250, 200);
+      } else {
+        const coinsNeeded = (selectedCarIndex + 1) * 5; 
+        previewImage = this.add
+          .text(720, 450, `BLOQUEADO`, {
+            fontSize: "32px",
+            fill: "#ff0000",
+            fontFamily: '"Irish Grover", system-ui',
+            align: "center",
+          })
+          .setOrigin(0.5);
+      }
+  
       leftArrow.setVisible(true);
       rightArrow.setVisible(true);
     } else {
@@ -311,7 +409,7 @@ function create() {
       rightArrow.setVisible(false);
     }
   }
-
+  
   function repositionCar() {
     carSprite.setTexture(carImages[selectedCarIndex]);
     carSprite.setPosition(config.width / 2, config.height / 2 + 300);
@@ -319,87 +417,182 @@ function create() {
 
   this.input.keyboard.on("keydown-ENTER", () => {
     if (!inMapSelection && !inGallerySelection && !isPlaying) {
-      if (selectedMenuIndex === 3) {
-        // Créditos
-        // Ocultar elementos del menú
-        toggleMenuButtons(false);
-        menuBackground.setVisible(false);
-        menuHeader.setVisible(false);
-        menuFooter.setVisible(false);
-        titleText.setVisible(false);
+        switch (selectedMenuIndex) {
+            case 3: 
+                toggleMenuButtons(false);
+                menuBackground.setVisible(false);
+                menuHeader.setVisible(false);
+                menuFooter.setVisible(false);
+                titleText.setVisible(false);
+                showCredits(this);
+                menuMusic.pause();
+                break;
 
-        // Mostrar los créditos
-        showCredits(this);
+            case 2: 
+                inMapSelection = true;
+                titleText.setText("MAPAS");
+                toggleMenuButtons(false);
+                updatePreview.call(this);
+                break;
 
-        // Pausar música del menú
-        menuMusic.pause();
-      } else if (selectedMenuIndex === 2) {
-        // Mapas
-        inMapSelection = true;
-        titleText.setText("MAPAS");
-        toggleMenuButtons(false);
-        updatePreview.call(this);
-      } else if (selectedMenuIndex === 1) {
-        // Galería
-        inGallerySelection = true;
-        titleText.setText("GALERIA");
-        toggleMenuButtons(false);
-        updatePreview.call(this);
-      } else if (selectedMenuIndex === 0) {
-        // Jugar
-        toggleMenuButtons(false);
-        menuBackground.setVisible(false);
-        menuHeader.setVisible(false);
-        menuFooter.setVisible(false);
-        titleText.setVisible(false);
+            case 1: 
+                inGallerySelection = true;
+                titleText.setText("GALERIA");
+                toggleMenuButtons(false);
+                updatePreview.call(this);
+                break;
 
-        // Inicia el juego
-        carSprite.setVisible(true);
-        isPlaying = true;
+                case 0: // Jugar
+                toggleMenuButtons(false);
+                menuBackground.setVisible(false);
+                menuHeader.setVisible(false);
+                menuFooter.setVisible(false);
+                titleText.setVisible(false);
+                carSprite.setVisible(true);
+                isPlaying = true;
+            
+                // Pausa la música del menú, si está sonando
+                if (menuMusic.isPlaying) {
+                    menuMusic.pause();
+                }
+            
+                // Reanuda la música de la pista si estaba pausada
+                if (currentPistaMusic && currentPistaMusic.isPaused) {
+                    currentPistaMusic.resume();
+                } else {
+                    // Si no hay música de pista, crea una nueva instancia
+                    if (currentPistaMusic) {
+                        currentPistaMusic.stop();
+                    }
+            
+                    currentPistaMusic = this.sound.add(pistaMusics[selectedMapIndex], {
+                        loop: true,
+                    });
+                    currentPistaMusic.play();
+                }
+            
+                this.time.addEvent({
+                    delay: 3000,
+                    callback: spawnCoin,
+                    callbackScope: this,
+                    loop: true,
+                });
+                break;
+            
 
-        // Pausar música del menú
-        menuMusic.pause();
-
-        // Reproducir la música del mapa seleccionado
-        if (currentPistaMusic) {
-          currentPistaMusic.stop();
+            default:
+                console.log("Opción no válida");
         }
-        currentPistaMusic = this.sound.add(pistaMusics[selectedMapIndex], {
-          loop: true,
-        });
-        currentPistaMusic.play();
-
-        // Generar monedas periódicamente
-        this.time.addEvent({
-          delay: 1000,
-          callback: spawnCoin,
-          callbackScope: this,
-          loop: true,
-        });
-      }
     } else if (inMapSelection) {
-      // Actualiza la pista y vuelve al menú principal
-      background1.setTexture(pistaImages[selectedMapIndex]);
-      background2.setTexture(pistaImages[selectedMapIndex]);
-      inMapSelection = false;
-      titleText.setText("Juego Carrito");
-      toggleMenuButtons(true);
-      updatePreview.call(this);
+        const mapCosts = [0, 15, 20, 25, 30];
+        const coinsNeeded = mapCosts[selectedMapIndex];
+
+        if (unlockedMaps[selectedMapIndex]) {
+            background1.setTexture(pistaImages[selectedMapIndex]);
+            background2.setTexture(pistaImages[selectedMapIndex]);
+            inMapSelection = false;
+            titleText.setText("Juego Carrito");
+            toggleMenuButtons(true);
+            updatePreview.call(this);
+        } else if (totalCoins >= coinsNeeded) {
+            totalCoins -= coinsNeeded;
+            unlockedMaps[selectedMapIndex] = true;
+            scoreText.setText(`Monedas: ${totalCoins}`);
+            updatePreview.call(this);
+
+            const successMessage = this.add.text(
+                720,
+                600,
+                `¡Mapa ${selectedMapIndex + 1} desbloqueado!`,
+                {
+                    fontSize: "28px",
+                    fill: "#00ff00",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+
+            this.time.delayedCall(2000, () => {
+                successMessage.destroy();
+            });
+        } else {
+            const errorMessage = this.add.text(
+                720,
+                600,
+                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
+                {
+                    fontSize: "28px",
+                    fill: "#ff0000",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+
+            this.time.delayedCall(2000, () => {
+                errorMessage.destroy();
+            });
+        }
     } else if (inGallerySelection) {
-      // Reposicionar el carrito y volver al menú principal
-      repositionCar();
-      inGallerySelection = false;
-      titleText.setText("Juego Carrito");
-      toggleMenuButtons(true);
-      updatePreview.call(this);
+        // Selección de galería
+        const carCosts = [0, 0, 15, 20, 25];
+        const coinsNeeded = carCosts[selectedCarIndex];
+
+        if (unlockedCars[selectedCarIndex]) {
+            // Carro desbloqueado
+            repositionCar();
+            inGallerySelection = false;
+            titleText.setText("Juego Carrito");
+            toggleMenuButtons(true);
+            updatePreview.call(this);
+        } else if (totalCoins >= coinsNeeded) {
+            // Desbloquear carro
+            totalCoins -= coinsNeeded;
+            unlockedCars[selectedCarIndex] = true;
+            scoreText.setText(`Monedas: ${totalCoins}`);
+            updatePreview.call(this);
+
+            // Mostrar mensaje de éxito
+            const successMessage = this.add.text(
+                720,
+                600,
+                `¡Carro ${selectedCarIndex + 1} desbloqueado!`,
+                {
+                    fontSize: "28px",
+                    fill: "#00ff00",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+
+            this.time.delayedCall(2000, () => {
+                successMessage.destroy();
+            });
+        } else {
+            // Monedas insuficientes
+            const errorMessage = this.add.text(
+                720,
+                600,
+                `No tienes suficientes monedas\nSe necesitan ${coinsNeeded} monedas`,
+                {
+                    fontSize: "28px",
+                    fill: "#ff0000",
+                    fontFamily: '"Irish Grover", system-ui',
+                    align: "center",
+                }
+            ).setOrigin(0.5);
+
+            this.time.delayedCall(2000, () => {
+                errorMessage.destroy();
+            });
+        }
     }
 
-    // Actualiza la posición de la mano en el menú
     updateHandPosition();
-  });
+});
 
-  this.input.keyboard.on("keydown-ESC", () => {
-    if (isPlaying) {
+
+this.input.keyboard.on("keydown-ESC", () => {
+  if (isPlaying) {
       isPlaying = false;
       menuBackground.setVisible(true);
       menuHeader.setVisible(true);
@@ -407,12 +600,17 @@ function create() {
       titleText.setVisible(true);
       toggleMenuButtons(true);
       carSprite.setVisible(false);
-      if (currentPistaMusic) {
-        currentPistaMusic.stop();
+
+      if (currentPistaMusic && currentPistaMusic.isPlaying) {
+          currentPistaMusic.pause(); 
       }
-      menuMusic.resume();
-    }
-  });
+
+      if (!menuMusic.isPlaying) {
+          menuMusic.resume(); 
+      }
+  }
+});
+
 
   this.input.keyboard.on("keydown-UP", () => {
     if (!inMapSelection && !inGallerySelection && !isPlaying) {
