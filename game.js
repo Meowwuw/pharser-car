@@ -58,8 +58,9 @@ function preload() {
   this.load.audio("musicPista1", "music/musica-pista1.mp3");
   this.load.audio("musicPista2", "music/musica-pista2.mp3");
   this.load.audio("musicPista3", "music/musica-pista3.mp3");
-  this.load.audio("musicPista4", "music/musica-pista4.mp3");
-  this.load.audio("musicPista5", "music/musica-pista5.mp3");
+  this.load.audio("musicPista4", "music/musica-pista5.mp3");
+  this.load.audio("musicPista5", "music/musica-pista4.mp3");
+ 
   this.load.audio("coinSound", "music/coin.mp3");
   this.load.audio("creditsMusic", "music/credits-music.mp3");
 
@@ -156,6 +157,7 @@ function create() {
       "Renzo S.",
       "Emmanuel M.",
       "1011010",
+      "Lluncor.com"
     ];
 
     const creditsGroup = scene.add.group();
